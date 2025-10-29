@@ -1,0 +1,33 @@
+{
+  "name": "vue3-virtual-table",
+  "version": "1.0.0",
+  "description": "高性能Vue3虚拟滚动表格组件 - 支持10万+数据流畅滚动",
+  "author": "Your Name",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc -b && vite build",
+    "preview": "vite preview",
+    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
+    "format": "prettier --write src/"
+  },
+  "keywords": [
+    "vue3",
+    "virtual-scroll",
+    "table",
+    "performance",
+    "typescript"
+  ],
+  "dependencies": {
+    "vue": "^3.5.22"
+  },
+  "devDependencies": {
+    "@types/node": "^24.6.0",
+    "@vitejs/plugin-vue": "^6.0.1",
+    "@vue/tsconfig": "^0.8.1",
+    "typescript": "~5.9.3",
+    "vite": "^7.1.7",
+    "vue-tsc": "^3.1.0"
+  }
+}
