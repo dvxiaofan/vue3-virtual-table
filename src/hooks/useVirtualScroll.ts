@@ -17,8 +17,8 @@ export function useVirtualScroll(
     estimatedItemHeight = 50
   } = config
 
-  // 滚动容器高度
-  const containerHeight = ref(0)
+  // 滚动容器高度（设置默认值避免初始为0）
+  const containerHeight = ref(600)  // 默认高度600px
   // 当前滚动位置
   const scrollTop = ref(0)
   // 位置信息缓存（动态行高使用）
@@ -28,6 +28,10 @@ export function useVirtualScroll(
    * 初始化位置信息（动态行高模式）
    */
   const initPositions = () => {
+    if (!data.value || data.value.length === 0) {
+      positions.value = []
+      return
+    }
     positions.value = data.value.map((_, index) => ({
       index,
       top: index * estimatedItemHeight,
@@ -40,16 +44,21 @@ export function useVirtualScroll(
    * 更新某一项的高度（动态行高模式）
    */
   const updateItemHeight = (index: number, height: number) => {
-    const oldHeight = positions.value[index].height
-    const diff = height - oldHeight
+    const currentPosition = positions.value[index]
+    if (!currentPosition) return
 
-    positions.value[index].height = height
-    positions.value[index].bottom = positions.value[index].top + height
+    currentPosition.height = height
+    currentPosition.bottom = currentPosition.top + height
 
     // 更新后续所有项的位置
     for (let i = index + 1; i < positions.value.length; i++) {
-      positions.value[i].top = positions.value[i - 1].bottom
-      positions.value[i].bottom = positions.value[i].top + positions.value[i].height
+      const current = positions.value[i]
+      const previous = positions.value[i - 1]
+
+      if (current && previous) {
+        current.top = previous.bottom
+        current.bottom = current.top + current.height
+      }
     }
   }
 
@@ -65,7 +74,11 @@ export function useVirtualScroll(
 
       while (left <= right) {
         mid = Math.floor((left + right) / 2)
-        const midBottom = positions.value[mid].bottom
+        const midPosition = positions.value[mid]
+
+        if (!midPosition) break
+
+        const midBottom = midPosition.bottom
 
         if (midBottom === scrollTop.value) {
           return mid + 1
@@ -93,14 +106,17 @@ export function useVirtualScroll(
       const startIndex = getStartIndex.value
 
       for (let i = startIndex; i < positions.value.length; i++) {
-        height += positions.value[i].height
+        const position = positions.value[i]
+        if (!position) break
+
+        height += position.height
         count++
         if (height >= containerHeight.value) break
       }
 
-      return count
+      return Math.max(1, count)  // 确保至少返回1
     } else {
-      return Math.ceil(containerHeight.value / itemHeight)
+      return Math.max(1, Math.ceil(containerHeight.value / itemHeight))  // 确保至少返回1
     }
   })
 
@@ -115,8 +131,9 @@ export function useVirtualScroll(
    * 实际渲染的结束索引（加上缓冲区）
    */
   const renderEnd = computed(() => {
+    const dataLength = data.value?.length || 0
     return Math.min(
-      data.value.length,
+      dataLength,
       getStartIndex.value + visibleCount.value + bufferSize
     )
   })
@@ -125,6 +142,9 @@ export function useVirtualScroll(
    * 实际渲染的数据
    */
   const visibleData = computed(() => {
+    if (!data.value || data.value.length === 0) {
+      return []
+    }
     return data.value.slice(renderStart.value, renderEnd.value)
   })
 
@@ -144,9 +164,10 @@ export function useVirtualScroll(
    */
   const totalHeight = computed(() => {
     if (dynamicHeight && positions.value.length > 0) {
-      return positions.value[positions.value.length - 1].bottom
+      const lastPosition = positions.value[positions.value.length - 1]
+      return lastPosition?.bottom || 0
     } else {
-      return data.value.length * itemHeight
+      return (data.value?.length || 0) * itemHeight
     }
   })
 
@@ -167,7 +188,7 @@ export function useVirtualScroll(
 
   // 监听数据变化，重新初始化位置信息
   watch(
-    () => data.value.length,
+    () => data.value?.length || 0,
     () => {
       if (dynamicHeight) {
         initPositions()
