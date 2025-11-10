@@ -13,6 +13,8 @@
 - 🎯 **虚拟滚动** - 仅渲染可视区域数据，极大提升性能
 - ⚡ **高性能** - 支持10万+数据流畅滚动，60fps稳定渲染
 - 📏 **动态行高** - 支持不同高度的行，自动计算和缓存
+- 🔒 **列固定** - 支持左右列固定，滚动时保持可见
+- 🌲 **树形数据** - 支持树形结构数据展示，可展开/折叠
 - 🔧 **灵活配置** - 丰富的配置选项，满足各种场景需求
 - 🎨 **自定义渲染** - 支持自定义单元格内容渲染
 - 📱 **响应式** - 自适应容器大小变化
@@ -40,6 +42,8 @@ npm run preview
 
 ## 📖 使用示例
 
+### 基础使用
+
 ```vue
 <template>
   <VirtualTable
@@ -66,13 +70,49 @@ const tableData = ref<TableRow[]>([
 ])
 
 const columns: TableColumn[] = [
-  { key: 'id', title: 'ID', width: 80 },
-  { key: 'name', title: '姓名', width: 120 },
-  { key: 'age', title: '年龄', width: 80, sortable: true }
+  { key: 'id', title: 'ID', width: 80, fixed: 'left' },
+  { key: 'name', title: '姓名', width: 120, fixed: 'left' },
+  { key: 'age', title: '年龄', width: 80, sortable: true },
+  { key: 'actions', title: '操作', width: 100, fixed: 'right' }
 ]
 
 const handleSort = (config) => {
   console.log('排序配置:', config)
+}
+</script>
+```
+
+### 树形数据使用
+
+```vue
+<template>
+  <VirtualTable
+    :data="treeData"
+    :columns="columns"
+    :height="600"
+    :tree-props="{
+      children: 'children',
+      indent: 20,
+      defaultExpandAll: false
+    }"
+    @expand="handleExpand"
+  />
+</template>
+
+<script setup lang="ts">
+const treeData = ref([
+  {
+    id: 1,
+    name: '总部',
+    children: [
+      { id: 11, name: '技术部' },
+      { id: 12, name: '市场部' }
+    ]
+  }
+])
+
+const handleExpand = ({ node, expanded }) => {
+  console.log('节点展开/折叠:', node, expanded)
 }
 </script>
 ```
@@ -83,7 +123,7 @@ const handleSort = (config) => {
 
 | 参数 | 说明 | 类型 | 默认值 |
 |-----|------|-----|--------|
-| data | 表格数据 | `TableRow[]` | `[]` |
+| data | 表格数据 | `TableRow[] \| TreeTableRow[]` | `[]` |
 | columns | 列配置 | `TableColumn[]` | `[]` |
 | height | 表格高度 | `number \| string` | `600` |
 | stripe | 是否显示斑马纹 | `boolean` | `false` |
@@ -91,6 +131,7 @@ const handleSort = (config) => {
 | loading | 加载状态 | `boolean` | `false` |
 | rowKey | 行数据的key | `string` | `'id'` |
 | virtualConfig | 虚拟滚动配置 | `VirtualScrollConfig` | 见下表 |
+| treeProps | 树形数据配置 | `TreeProps` | 见下表 |
 
 ### VirtualScrollConfig
 
@@ -101,6 +142,16 @@ const handleSort = (config) => {
 | dynamicHeight | 是否启用动态行高 | `boolean` | `false` |
 | estimatedItemHeight | 预估行高(动态高度模式) | `number` | `50` |
 
+### TreeProps
+
+| 参数 | 说明 | 类型 | 默认值 |
+|-----|------|-----|--------|
+| children | 子节点字段名 | `string` | `'children'` |
+| indent | 缩进宽度 | `number` | `20` |
+| defaultExpandAll | 默认展开所有节点 | `boolean` | `false` |
+| defaultExpandedKeys | 默认展开的节点key数组 | `string[]` | `[]` |
+| showLine | 是否显示连接线 | `boolean` | `false` |
+
 ### TableColumn
 
 | 参数 | 说明 | 类型 | 默认值 |
@@ -108,7 +159,8 @@ const handleSort = (config) => {
 | key | 列字段名 | `string` | - |
 | title | 列标题 | `string` | - |
 | width | 列宽度 | `number \| string` | - |
-| align | 对齐方式 | `'left' \| 'center' \| 'right'` | `'left'` |
+| align | 对齐方式 | `'left' \| 'center' \| 'right'` | `'center'` |
+| fixed | 固定列 | `'left' \| 'right'` | - |
 | sortable | 是否可排序 | `boolean` | `false` |
 | render | 自定义渲染函数 | `Function` | - |
 
@@ -117,6 +169,7 @@ const handleSort = (config) => {
 | 事件名 | 说明 | 回调参数 |
 |-------|------|---------|
 | sort | 排序时触发 | `(config: SortConfig) => void` |
+| expand | 树形节点展开/折叠时触发 | `({ node, expanded }) => void` |
 
 ## 🎯 性能优化原理
 
@@ -171,11 +224,12 @@ const offsetY = computed(() => {
 - [x] 基础表格功能
 - [x] 排序功能
 
-### Phase 2 - 进阶功能 🚧
+### Phase 2 - 进阶功能 ✅
 - [x] 动态行高支持
-- [ ] 列固定（左/右）
-- [ ] 横向虚拟滚动
-- [ ] 树形数据展示
+- [x] 列固定（左/右）
+- [x] 树形数据展示
+- [x] 自定义单元格渲染
+- [x] 详情弹窗展示
 
 ### Phase 3 - 性能优化 📝
 - [ ] Web Worker 数据处理
