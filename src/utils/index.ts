@@ -2,7 +2,7 @@
  * 工具函数
  */
 
-import type { TableRow } from '@/types'
+import type { TableRow, TreeTableRow } from '@/types'
 
 /**
  * 生成模拟数据
@@ -29,6 +29,40 @@ export function generateMockData(count: number): TableRow[] {
   }
 
   return data
+}
+
+/**
+ * 生成树形模拟数据
+ */
+export function generateTreeMockData(levels: number = 3, childrenPerNode: number = 3): TreeTableRow[] {
+  let idCounter = 1
+
+  const generateNode = (level: number, parentName: string = ''): TreeTableRow => {
+    const id = idCounter++
+    const name = parentName ? `${parentName}-${id}` : `节点${id}`
+
+    const node: TreeTableRow = {
+      id: id,
+      name: name,
+      type: level === 1 ? '总部' : level === 2 ? '分公司' : level === 3 ? '部门' : '小组',
+      manager: `${['张', '李', '王', '赵'][id % 4]}${['经理', '总监', '主管'][level - 1] || '组长'}`,
+      employees: Math.floor(Math.random() * 50) + 10,
+      budget: Math.floor(Math.random() * 1000000) + 100000,
+      status: ['运营中', '筹备中', '整改中'][id % 3],
+      createDate: `202${id % 5}/${(id % 12) + 1}/${(id % 28) + 1}`
+    }
+
+    if (level < levels) {
+      node.children = Array.from({ length: childrenPerNode }, () =>
+        generateNode(level + 1, name)
+      )
+    }
+
+    return node
+  }
+
+  // 生成多个根节点
+  return Array.from({ length: 3 }, () => generateNode(1))
 }
 
 /**

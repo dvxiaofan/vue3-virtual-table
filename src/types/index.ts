@@ -19,6 +19,12 @@ export interface TableRow {
   [key: string]: any
 }
 
+// 树形表格行数据
+export interface TreeTableRow extends TableRow {
+  children?: TreeTableRow[]
+  hasChildren?: boolean
+}
+
 // 虚拟滚动配置
 export interface VirtualScrollConfig {
   // 每行高度（固定高度模式）
@@ -29,6 +35,24 @@ export interface VirtualScrollConfig {
   dynamicHeight?: boolean
   // 预估行高（动态高度模式使用）
   estimatedItemHeight?: number
+}
+
+// 树形配置
+export interface TreeProps {
+  // 子节点字段名
+  children?: string
+  // 是否有子节点字段名
+  hasChildren?: string
+  // 缩进宽度
+  indent?: number
+  // 受控的展开节点
+  expandedKeys?: string[]
+  // 默认展开所有
+  defaultExpandAll?: boolean
+  // 默认展开的节点
+  defaultExpandedKeys?: string[]
+  // 是否显示连接线
+  showLine?: boolean
 }
 
 // 位置信息（用于动态行高）
@@ -48,7 +72,7 @@ export interface SortConfig {
 // 虚拟表格属性
 export interface VirtualTableProps {
   // 数据源
-  data: TableRow[]
+  data: TableRow[] | TreeTableRow[]
   // 列配置
   columns: TableColumn[]
   // 虚拟滚动配置
@@ -63,4 +87,6 @@ export interface VirtualTableProps {
   loading?: boolean
   // 行key字段
   rowKey?: string
+  // 树形配置
+  treeProps?: TreeProps
 }

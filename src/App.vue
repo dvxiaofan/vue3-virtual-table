@@ -22,6 +22,19 @@
       </div>
 
       <div class="control-group">
+        <label>数据模式：</label>
+        <div class="control-buttons">
+          <button
+            @click="toggleDataMode"
+            class="control-button"
+            :class="{ active: isTreeMode }"
+          >
+            {{ isTreeMode ? '树形数据' : '普通数据' }}
+          </button>
+        </div>
+      </div>
+
+      <div class="control-group">
         <label>行高模式：</label>
         <div class="control-buttons">
           <button
@@ -78,9 +91,23 @@
           dynamicHeight: dynamicHeight,
           estimatedItemHeight: 50
         }"
+        :tree-props="isTreeMode ? {
+          children: 'children',
+          indent: 20,
+          defaultExpandAll: false,
+          showLine: false
+        } : undefined"
         @sort="handleSort"
+        @expand="handleTreeExpand"
       />
     </div>
+
+    <!-- 详情弹窗 -->
+    <DetailModal
+      v-model:visible="showDetailModal"
+      :rowData="currentDetailRow"
+      :columns="columns.filter(col => col.key !== 'actions')"
+    />
 
     <div class="demo-info">
       <h3>✨ 特性</h3>
@@ -97,49 +124,121 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, h } from 'vue'
 import VirtualTable from './components/VirtualTable'
-import { generateMockData } from './utils'
-import type { TableColumn, TableRow } from './types'
+import DetailModal from './components/DetailModal.vue'
+import { generateMockData, generateTreeMockData } from './utils'
+import type { TableColumn, TableRow, TreeTableRow } from './types'
 
 // 数据量选项
 const dataCounts = [100, 1000, 10000, 50000, 100000]
-const currentCount = ref(10000)
+const currentCount = ref(100)
 
 // 表格数据
-const tableData = ref<TableRow[]>([])
+const tableData = ref<TableRow[] | TreeTableRow[]>([])
 const loading = ref(false)
 
 // 表格样式
 const stripe = ref(true)
 const border = ref(false)
 const dynamicHeight = ref(false)
+const isTreeMode = ref(false) // 新增：是否为树形模式
 
 // 性能监控
 const renderCount = ref(0)
 const fps = ref(60)
 const memory = ref('0 MB')
 
+// 弹窗控制
+const showDetailModal = ref(false)
+const currentDetailRow = ref<TableRow | null>(null)
+
 // 列配置
-const columns = computed<TableColumn[]>(() => [
+const columns = computed<TableColumn[]>(() => {
+  // 树形模式的列配置
+  if (isTreeMode.value) {
+    return [
+      {
+        key: 'name',
+        title: '组织名称',
+        width: 300,
+        align: 'left',
+        fixed: 'left'
+      },
+      {
+        key: 'type',
+        title: '类型',
+        width: 100
+      },
+      {
+        key: 'manager',
+        title: '负责人',
+        width: 120
+      },
+      {
+        key: 'employees',
+        title: '员工数',
+        width: 100,
+        sortable: true
+      },
+      {
+        key: 'budget',
+        title: '预算',
+        width: 150,
+        align: 'right',
+        sortable: true,
+        render: (row: TreeTableRow) => {
+          return `¥${row.budget?.toLocaleString() || 0}`
+        }
+      },
+      {
+        key: 'status',
+        title: '状态',
+        width: 100
+      },
+      {
+        key: 'createDate',
+        title: '创建日期',
+        width: 120
+      },
+      {
+        key: 'actions',
+        title: '操作',
+        width: 100,
+        fixed: 'right',
+        render: (row: TreeTableRow) => {
+          return h('button', {
+            class: 'action-button',
+            onClick: (e: Event) => {
+              e.stopPropagation()
+              handleShowDetail(row)
+            }
+          }, '详情')
+        }
+      }
+    ]
+  }
+
+  // 普通模式的列配置
+  return [
   {
     key: 'id',
     title: 'ID',
     width: 80,
-    align: 'center',
-    fixed: 'left'
+    fixed: 'left',
+    sortable: true
   },
   {
     key: 'name',
     title: '姓名',
     width: 120,
+    fixed: 'left',
     sortable: true
   },
   {
     key: 'age',
     title: '年龄',
     width: 80,
-    align: 'center',
     sortable: true
   },
   {
@@ -156,7 +255,7 @@ const columns = computed<TableColumn[]>(() => [
     key: 'salary',
     title: '薪资',
     width: 120,
-    align: 'right',
+    align: 'right',  // 薪资保留右对齐
     sortable: true,
     render: (row: TableRow) => {
       return `¥${row.salary.toLocaleString()}`
@@ -165,7 +264,8 @@ const columns = computed<TableColumn[]>(() => [
   {
     key: 'email',
     title: '邮箱',
-    width: 200
+    width: 200,
+    align: 'left'  // 邮箱保留左对齐
   },
   {
     key: 'phone',
@@ -176,6 +276,7 @@ const columns = computed<TableColumn[]>(() => [
     key: 'address',
     title: '地址',
     width: dynamicHeight.value ? 300 : 200,
+    align: 'left',  // 地址保留左对齐
     render: (row: TableRow) => {
       // 动态行高模式下，随机返回不同长度的内容
       if (dynamicHeight.value) {
@@ -189,8 +290,24 @@ const columns = computed<TableColumn[]>(() => [
     key: 'joinDate',
     title: '入职日期',
     width: 120
+  },
+  {
+    key: 'actions',
+    title: '操作',
+    width: 100,
+    fixed: 'right',
+    render: (row: TableRow) => {
+      return h('button', {
+        class: 'action-button',
+        onClick: (e: Event) => {
+          e.stopPropagation()
+          handleShowDetail(row)
+        }
+      }, '详情')
+    }
   }
-])
+  ]
+})
 
 // 切换数据量
 const changeDataCount = (count: number) => {
@@ -198,10 +315,25 @@ const changeDataCount = (count: number) => {
   currentCount.value = count
 
   setTimeout(() => {
-    tableData.value = generateMockData(count)
+    if (isTreeMode.value) {
+      // 树形模式：生成树形数据
+      // 生成合理的层级结构
+      const levels = 3 // 固定3层
+      const childrenPerNode = Math.max(2, Math.min(5, Math.floor(count / 20))) // 每个节点2-5个子节点
+      tableData.value = generateTreeMockData(levels, childrenPerNode)
+    } else {
+      // 普通模式：生成扁平数据
+      tableData.value = generateMockData(count)
+    }
     loading.value = false
     updateRenderCount()
   }, 300)
+}
+
+// 切换数据模式（普通/树形）
+const toggleDataMode = () => {
+  isTreeMode.value = !isTreeMode.value
+  changeDataCount(isTreeMode.value ? 100 : currentCount.value)
 }
 
 // 切换行高模式
@@ -231,6 +363,17 @@ const handleSort = (config: any) => {
     })
     loading.value = false
   }, 100)
+}
+
+// 显示详情弹窗
+const handleShowDetail = (row: TableRow) => {
+  currentDetailRow.value = row
+  showDetailModal.value = true
+}
+
+// 处理树形展开/折叠
+const handleTreeExpand = (data: { node: any, expanded: boolean }) => {
+  console.log('树形节点展开/折叠:', data.node.name, data.expanded)
 }
 
 // 更新渲染数量
@@ -359,21 +502,25 @@ body {
   padding: 6px 16px;
   border: 1px solid #d9d9d9;
   background: white;
+  color: #333; /* 确保文字颜色可见 */
   border-radius: 6px;
   cursor: pointer;
   font-size: 14px;
   transition: all 0.3s;
+  white-space: nowrap; /* 防止文字换行 */
 }
 
 .control-button:hover {
   border-color: #667eea;
   color: #667eea;
+  background: #f5f5f5; /* 添加悬浮背景色 */
 }
 
 .control-button.active {
   background: #667eea;
   color: white;
   border-color: #667eea;
+  font-weight: 500; /* 激活状态字体加粗 */
 }
 
 .stats {
@@ -397,6 +544,9 @@ body {
   padding: 20px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
   margin-bottom: 20px;
+  height: 700px;  /* 设置固定高度，比表格高度稍大 */
+  display: flex;
+  flex-direction: column;
 }
 
 .demo-info {
@@ -421,5 +571,27 @@ body {
 .demo-info li {
   color: #666;
   padding: 5px 0;
+}
+
+/* 操作按钮样式 */
+:deep(.action-button) {
+  padding: 4px 12px;
+  background: #667eea;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.3s;
+}
+
+:deep(.action-button:hover) {
+  background: #5a67d8;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(102, 126, 234, 0.4);
+}
+
+:deep(.action-button:active) {
+  transform: translateY(0);
 }
 </style>
