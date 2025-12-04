@@ -46,7 +46,8 @@ interface DetailModalProps {
   columns: TableColumn[]
 }
 
-const props = defineProps<DetailModalProps>()
+// const props = defineProps<DetailModalProps>()
+defineProps<DetailModalProps>()
 
 const emit = defineEmits<{
   'update:visible': [value: boolean]
