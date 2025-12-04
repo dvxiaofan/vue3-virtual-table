@@ -276,19 +276,23 @@
     </div>
 
     <!-- 加载状态 -->
-    <div v-if="loading" class="virtual-table__loading">
+    <div v-if="loading || isSorting" class="virtual-table__loading">
       <div class="virtual-table__loading-spinner"></div>
-      <span>加载中...</span>
+      <span>{{ isSorting ? '排序中...' : '加载中...' }}</span>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, toRef, watch, nextTick, onMounted, onUnmounted, computed, h } from 'vue'
+import { ref, watch, nextTick, onMounted, onUnmounted, computed, h } from 'vue'
 import { useVirtualScroll } from '@/hooks/useVirtualScroll'
 import { useTreeData } from '@/hooks/useTreeData'
-import type { VirtualTableProps, SortConfig } from '@/types'
+import type { VirtualTableProps, SortConfig, TableRow } from '@/types'
 import { throttle } from '@/utils'
+import SortWorker from '@/workers/sort.worker?worker'
+
+// Worker 实例
+const worker = new SortWorker()
 
 // Props
 const props = withDefaults(defineProps<VirtualTableProps>(), {
@@ -326,21 +330,37 @@ const rowRefs = ref<HTMLElement[]>([])
 
 // Data
 const sortConfig = ref<SortConfig | null>(null)
-const dataRef = toRef(props, 'data')
+// 内部维护的数据（用于排序）
+const internalData = ref<TableRow[]>([])
+const isSorting = ref(false)
+
+// 初始化内部数据
+watch(() => props.data, (newData) => {
+  if (newData) {
+    internalData.value = [...newData]
+  }
+}, { immediate: true })
+
 const isScrolling = ref(false)
 const scrollbarWidth = ref(0)
 let scrollTimer: ReturnType<typeof setTimeout> | null = null
 
+// Worker 消息处理
+worker.onmessage = (e) => {
+  internalData.value = e.data
+  isSorting.value = false
+}
+
 // 判断是否为树形数据
 const isTreeData = computed(() => {
-  if (!props.treeProps || !props.data || props.data.length === 0) {
-    console.log('Not tree data - missing props or data')
+  if (!props.treeProps || !internalData.value || internalData.value.length === 0) {
+    // console.log('Not tree data - missing props or data')
     return false
   }
   // 检查第一个数据项是否有 children 字段
   const childrenKey = props.treeProps?.children || 'children'
-  const hasChildren = props.data.some((item: any) => item[childrenKey] && item[childrenKey].length > 0)
-  console.log('isTreeData check:', { childrenKey, hasChildren, dataLength: props.data.length })
+  const hasChildren = internalData.value.some((item: any) => item[childrenKey] && item[childrenKey].length > 0)
+  // console.log('isTreeData check:', { childrenKey, hasChildren, dataLength: internalData.value.length })
   return hasChildren
 })
 
@@ -348,16 +368,16 @@ const isTreeData = computed(() => {
 const treeDataHook = ref<ReturnType<typeof useTreeData> | null>(null)
 
 // 监听数据和树形配置变化
-watch([() => props.treeProps, () => props.data], ([newTreeProps, newData]) => {
-  console.log('Watch triggered:', {
-    hasTreeProps: !!newTreeProps,
-    dataLength: newData?.length,
-    firstItem: newData?.[0]
-  })
+watch([() => props.treeProps, internalData], ([newTreeProps, newData]) => {
+  // console.log('Watch triggered:', {
+  //   hasTreeProps: !!newTreeProps,
+  //   dataLength: newData?.length,
+  //   firstItem: newData?.[0]
+  // })
 
   // 清理旧的 hook
   if (treeDataHook.value && (!newTreeProps || !newData || newData.length === 0)) {
-    console.log('Clearing treeDataHook')
+    // console.log('Clearing treeDataHook')
     treeDataHook.value = null
     return
   }
@@ -366,21 +386,24 @@ watch([() => props.treeProps, () => props.data], ([newTreeProps, newData]) => {
     const childrenKey = newTreeProps?.children || 'children'
     const hasTreeData = newData.some((item: any) => item[childrenKey] && item[childrenKey].length > 0)
 
-    console.log('Checking tree data:', { childrenKey, hasTreeData })
+    // console.log('Checking tree data:', { childrenKey, hasTreeData })
 
     if (hasTreeData) {
       // 只在没有 hook 或数据源变化时重新创建
+      // 注意：这里我们需要传递 internalData 的 ref
+      // 由于 watch 的 newData 是解包后的值，我们需要传 internalData 本身
+      // 但 useTreeData 需要 Ref，所以直接传 internalData
       if (!treeDataHook.value) {
-        console.log('Creating new treeDataHook')
+        // console.log('Creating new treeDataHook')
         treeDataHook.value = useTreeData(
-          dataRef as any,
+          internalData as any,
           props.rowKey,
           newTreeProps
         )
-        console.log('TreeDataHook created:', treeDataHook.value)
+        // console.log('TreeDataHook created:', treeDataHook.value)
       }
     } else {
-      console.log('No tree structure found in data')
+      // console.log('No tree structure found in data')
       treeDataHook.value = null
     }
   }
@@ -391,12 +414,13 @@ const renderData = computed(() => {
   if (isTreeData.value && treeDataHook.value) {
     // visibleNodes 是一个 computed，直接返回其值
     const nodes = (treeDataHook.value.visibleNodes as any).value || treeDataHook.value.visibleNodes
-    console.log('Tree mode - visible nodes:', nodes)
+    // console.log('Tree mode - visible nodes:', nodes)
     return nodes || []
   }
-  console.log('Normal mode - data:', props.data)
-  return props.data || []
+  // console.log('Normal mode - data:', internalData.value)
+  return internalData.value || []
 })
+
 
 // 计算列分组
 const leftFixedColumns = computed(() => {
@@ -502,9 +526,26 @@ const handleSort = (column: any) => {
   }
 
   if (sortConfig.value) {
+    // 开启排序 loading
+    isSorting.value = true
+
+    // 发送给 Worker 处理
+    // 使用 JSON.parse(JSON.stringify()) 深拷贝去除 Proxy 和不可克隆对象，防止 DataCloneError
+    worker.postMessage({
+      data: JSON.parse(JSON.stringify(internalData.value)),
+      key: sortConfig.value.key,
+      order: sortConfig.value.order
+    })
+
+    // 依然抛出事件，保持兼容性
     emit('sort', sortConfig.value)
   }
 }
+
+onUnmounted(() => {
+  worker.terminate()
+})
+
 
 // 渲染树形单元格内容
 const renderTreeCell = (row: any, column: any, isFirstColumn: boolean) => {
@@ -647,7 +688,7 @@ onUnmounted(() => {
 })
 
 // 监听数据变化，重置滚动位置
-watch(dataRef, () => {
+watch(internalData, () => {
   if (scrollRef.value) {
     scrollRef.value.scrollTop = 0
   }

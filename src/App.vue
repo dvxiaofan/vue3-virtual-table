@@ -97,7 +97,6 @@
           defaultExpandAll: false,
           showLine: false
         } : undefined"
-        @sort="handleSort"
         @expand="handleTreeExpand"
       />
     </div>
@@ -344,26 +343,9 @@ const toggleHeightMode = () => {
 }
 
 // 处理排序
-const handleSort = (config: any) => {
-  const { key, order } = config
-
-  loading.value = true
-  setTimeout(() => {
-    tableData.value = [...tableData.value].sort((a, b) => {
-      const aVal = a[key]
-      const bVal = b[key]
-
-      if (typeof aVal === 'number' && typeof bVal === 'number') {
-        return order === 'asc' ? aVal - bVal : bVal - aVal
-      }
-
-      const aStr = String(aVal)
-      const bStr = String(bVal)
-      return order === 'asc' ? aStr.localeCompare(bStr) : bStr.localeCompare(aStr)
-    })
-    loading.value = false
-  }, 100)
-}
+// const handleSort = (config: any) => {
+//   console.log('Sorting handled by worker internally', config)
+// }
 
 // 显示详情弹窗
 const handleShowDetail = (row: TableRow) => {
