@@ -1,9 +1,11 @@
 <template>
-  <VirtualTableDemo />
+  <IIRSConsole />
+  <!-- <VirtualTableDemo /> -->
 </template>
 
 <script setup lang="ts">
-import VirtualTableDemo from './views/VirtualTableDemo.vue'
+import IIRSConsole from './views/IIRSConsole.vue'
+// import VirtualTableDemo from './views/VirtualTableDemo.vue'
 </script>
 
 <style>
@@ -11,15 +13,15 @@ import VirtualTableDemo from './views/VirtualTableDemo.vue'
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #f5f7fa;
   min-height: 100vh;
 }
 
 #app {
-  padding: 20px;
+  /* padding: 20px; */
 }
 </style>
