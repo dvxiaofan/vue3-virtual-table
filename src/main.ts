@@ -1,5 +1,12 @@
 import { createApp } from 'vue'
 import './style.css'
 import App from './App.vue'
+import { router } from './router'
+import { permissionDirective } from './permission-demo/directives/permission'
 
-createApp(App).mount('#app')
+const app = createApp(App)
+
+app.use(router)
+app.directive('permission', permissionDirective)
+
+app.mount('#app')
