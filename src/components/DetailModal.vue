@@ -1,20 +1,44 @@
 <template>
   <Teleport to="body">
     <Transition name="modal">
-      <div v-if="visible" class="modal-overlay" @click="handleClose">
-        <div class="modal-container" @click.stop>
+      <div
+        v-if="visible"
+        class="modal-overlay"
+        @click="handleClose"
+      >
+        <div
+          class="modal-container"
+          @click.stop
+        >
           <div class="modal-header">
             <h3>详情信息</h3>
-            <button class="modal-close" @click="handleClose">
-              <svg width="20" height="20" viewBox="0 0 24 24">
-                <path fill="currentColor" d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+            <button
+              class="modal-close"
+              @click="handleClose"
+            >
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  fill="currentColor"
+                  d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
+                />
               </svg>
             </button>
           </div>
 
           <div class="modal-body">
-            <div v-if="rowData" class="detail-content">
-              <div v-for="column in columns" :key="column.key" class="detail-item">
+            <div
+              v-if="rowData"
+              class="detail-content"
+            >
+              <div
+                v-for="column in columns"
+                :key="column.key"
+                class="detail-item"
+              >
                 <label class="detail-label">{{ column.title }}：</label>
                 <div class="detail-value">
                   <span v-if="column.render">
@@ -27,7 +51,10 @@
           </div>
 
           <div class="modal-footer">
-            <button class="modal-button modal-button--primary" @click="handleClose">
+            <button
+              class="modal-button modal-button--primary"
+              @click="handleClose"
+            >
               确定
             </button>
           </div>

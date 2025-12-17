@@ -2,7 +2,9 @@
   <div class="demo-container">
     <header class="demo-header">
       <h1>Vue3 Virtual Table</h1>
-      <p class="demo-subtitle">高性能虚拟滚动表格组件 - 支持10万+数据流畅滚动</p>
+      <p class="demo-subtitle">
+        高性能虚拟滚动表格组件 - 支持10万+数据流畅滚动
+      </p>
     </header>
 
     <div class="demo-controls">
@@ -12,9 +14,9 @@
           <button
             v-for="count in dataCounts"
             :key="count"
-            @click="changeDataCount(count)"
             :class="{ active: currentCount === count }"
             class="control-button"
+            @click="changeDataCount(count)"
           >
             {{ count.toLocaleString() }} 条
           </button>
@@ -25,9 +27,9 @@
         <label>数据模式：</label>
         <div class="control-buttons">
           <button
-            @click="toggleDataMode"
             class="control-button"
             :class="{ active: isTreeMode }"
+            @click="toggleDataMode"
           >
             {{ isTreeMode ? '树形数据' : '普通数据' }}
           </button>
@@ -38,9 +40,9 @@
         <label>行高模式：</label>
         <div class="control-buttons">
           <button
-            @click="toggleHeightMode"
             class="control-button"
             :class="{ active: dynamicHeight }"
+            @click="toggleHeightMode"
           >
             {{ dynamicHeight ? '动态行高' : '固定行高' }}
           </button>
@@ -51,16 +53,16 @@
         <label>表格样式：</label>
         <div class="control-buttons">
           <button
-            @click="stripe = !stripe"
             class="control-button"
             :class="{ active: stripe }"
+            @click="stripe = !stripe"
           >
             斑马纹
           </button>
           <button
-            @click="border = !border"
             class="control-button"
             :class="{ active: border }"
+            @click="border = !border"
           >
             边框
           </button>
@@ -104,7 +106,7 @@
     <!-- 详情弹窗 -->
     <DetailModal
       v-model:visible="showDetailModal"
-      :rowData="currentDetailRow"
+      :row-data="currentDetailRow"
       :columns="columns.filter(col => col.key !== 'actions')"
     />
 

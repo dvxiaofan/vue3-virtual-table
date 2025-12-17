@@ -75,12 +75,10 @@ export function debounce<T extends (...args: any[]) => any>(
   let timeout: ReturnType<typeof setTimeout> | null = null
 
   return function (this: any, ...args: Parameters<T>) {
-    const context = this
-
     if (timeout) clearTimeout(timeout)
 
     timeout = setTimeout(() => {
-      func.apply(context, args)
+      func.apply(this, args)
     }, wait)
   }
 }
@@ -98,7 +96,6 @@ export function throttle<T extends (...args: any[]) => any>(
   return function (this: any, ...args: Parameters<T>) {
     const now = Date.now()
     const remaining = wait - (now - previous)
-    const context = this
 
     if (remaining <= 0 || remaining > wait) {
       if (timeout) {
@@ -106,12 +103,12 @@ export function throttle<T extends (...args: any[]) => any>(
         timeout = null
       }
       previous = now
-      func.apply(context, args)
+      func.apply(this, args)
     } else if (!timeout) {
       timeout = setTimeout(() => {
         previous = Date.now()
         timeout = null
-        func.apply(context, args)
+        func.apply(this, args)
       }, remaining)
     }
   }

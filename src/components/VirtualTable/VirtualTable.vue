@@ -1,5 +1,8 @@
 <template>
-  <div class="virtual-table" :class="{ 'virtual-table--border': border }">
+  <div
+    class="virtual-table"
+    :class="{ 'virtual-table--border': border }"
+  >
     <!-- 表格容器 -->
     <div class="virtual-table__wrapper">
       <!-- 左侧固定列 -->
@@ -25,20 +28,48 @@
                   :class="{ 'sortable': column.sortable }"
                   @click="handleSort(column)"
                 >
-                  <div class="virtual-table__header-content"
-                       :style="{ justifyContent: column.align === 'left' ? 'flex-start' : column.align === 'right' ? 'flex-end' : 'center' }">
+                  <div
+                    class="virtual-table__header-content"
+                    :style="{ justifyContent: column.align === 'left' ? 'flex-start' : column.align === 'right' ? 'flex-end' : 'center' }"
+                  >
                     <span>{{ column.title }}</span>
-                    <span v-if="column.sortable" class="virtual-table__sort-icon">
-                      <svg v-if="sortConfig?.key === column.key && sortConfig.order === 'asc'"
-                           width="12" height="12" viewBox="0 0 16 16">
-                        <path fill="currentColor" d="M8 4l4 8H4z"/>
+                    <span
+                      v-if="column.sortable"
+                      class="virtual-table__sort-icon"
+                    >
+                      <svg
+                        v-if="sortConfig?.key === column.key && sortConfig.order === 'asc'"
+                        width="12"
+                        height="12"
+                        viewBox="0 0 16 16"
+                      >
+                        <path
+                          fill="currentColor"
+                          d="M8 4l4 8H4z"
+                        />
                       </svg>
-                      <svg v-else-if="sortConfig?.key === column.key && sortConfig.order === 'desc'"
-                           width="12" height="12" viewBox="0 0 16 16">
-                        <path fill="currentColor" d="M8 12l-4-8h8z"/>
+                      <svg
+                        v-else-if="sortConfig?.key === column.key && sortConfig.order === 'desc'"
+                        width="12"
+                        height="12"
+                        viewBox="0 0 16 16"
+                      >
+                        <path
+                          fill="currentColor"
+                          d="M8 12l-4-8h8z"
+                        />
                       </svg>
-                      <svg v-else width="12" height="12" viewBox="0 0 16 16">
-                        <path fill="currentColor" opacity="0.3" d="M8 4l4 8H4z"/>
+                      <svg
+                        v-else
+                        width="12"
+                        height="12"
+                        viewBox="0 0 16 16"
+                      >
+                        <path
+                          fill="currentColor"
+                          opacity="0.3"
+                          d="M8 4l4 8H4z"
+                        />
                       </svg>
                     </span>
                   </div>
@@ -48,11 +79,19 @@
           </table>
         </div>
         <!-- 左侧固定表体 -->
-        <div class="virtual-table__fixed-body"
-             :style="{ height: typeof height === 'number' ? `${height}px` : height }"
-             ref="leftBodyRef">
-          <div class="virtual-table__phantom" :style="{ height: `${totalHeight}px` }"></div>
-          <div class="virtual-table__content" :style="{ transform: `translateY(${offsetY}px)` }">
+        <div
+          ref="leftBodyRef"
+          class="virtual-table__fixed-body"
+          :style="{ height: typeof height === 'number' ? `${height}px` : height }"
+        >
+          <div
+            class="virtual-table__phantom"
+            :style="{ height: `${totalHeight}px` }"
+          />
+          <div
+            class="virtual-table__content"
+            :style="{ transform: `translateY(${offsetY}px)` }"
+          >
             <table class="virtual-table__body-table">
               <tbody>
                 <tr
@@ -73,12 +112,12 @@
                   >
                     <div class="virtual-table__cell-content">
                       <component
-                        v-if="isTreeData && colIndex === 0"
                         :is="renderTreeCell(row, column, true)"
+                        v-if="isTreeData && colIndex === 0"
                       />
                       <component
-                        v-else-if="column.render && typeof column.render(row, column, renderStart + index) === 'object'"
                         :is="column.render(row, column, renderStart + index)"
+                        v-else-if="column.render && typeof column.render(row, column, renderStart + index) === 'object'"
                       />
                       <span v-else-if="column.render">
                         {{ column.render(row, column, renderStart + index) }}
@@ -96,7 +135,11 @@
       <!-- 中间滚动区域 -->
       <div class="virtual-table__main">
         <!-- 中间表头 -->
-        <div class="virtual-table__header" ref="headerRef" :style="{ paddingRight: `${scrollbarWidth}px` }">
+        <div
+          ref="headerRef"
+          class="virtual-table__header"
+          :style="{ paddingRight: `${scrollbarWidth}px` }"
+        >
           <table class="virtual-table__header-table">
             <thead>
               <tr>
@@ -111,20 +154,48 @@
                   :class="{ 'sortable': column.sortable }"
                   @click="handleSort(column)"
                 >
-                  <div class="virtual-table__header-content"
-                       :style="{ justifyContent: column.align === 'left' ? 'flex-start' : column.align === 'right' ? 'flex-end' : 'center' }">
+                  <div
+                    class="virtual-table__header-content"
+                    :style="{ justifyContent: column.align === 'left' ? 'flex-start' : column.align === 'right' ? 'flex-end' : 'center' }"
+                  >
                     <span>{{ column.title }}</span>
-                    <span v-if="column.sortable" class="virtual-table__sort-icon">
-                      <svg v-if="sortConfig?.key === column.key && sortConfig.order === 'asc'"
-                           width="12" height="12" viewBox="0 0 16 16">
-                        <path fill="currentColor" d="M8 4l4 8H4z"/>
+                    <span
+                      v-if="column.sortable"
+                      class="virtual-table__sort-icon"
+                    >
+                      <svg
+                        v-if="sortConfig?.key === column.key && sortConfig.order === 'asc'"
+                        width="12"
+                        height="12"
+                        viewBox="0 0 16 16"
+                      >
+                        <path
+                          fill="currentColor"
+                          d="M8 4l4 8H4z"
+                        />
                       </svg>
-                      <svg v-else-if="sortConfig?.key === column.key && sortConfig.order === 'desc'"
-                           width="12" height="12" viewBox="0 0 16 16">
-                        <path fill="currentColor" d="M8 12l-4-8h8z"/>
+                      <svg
+                        v-else-if="sortConfig?.key === column.key && sortConfig.order === 'desc'"
+                        width="12"
+                        height="12"
+                        viewBox="0 0 16 16"
+                      >
+                        <path
+                          fill="currentColor"
+                          d="M8 12l-4-8h8z"
+                        />
                       </svg>
-                      <svg v-else width="12" height="12" viewBox="0 0 16 16">
-                        <path fill="currentColor" opacity="0.3" d="M8 4l4 8H4z"/>
+                      <svg
+                        v-else
+                        width="12"
+                        height="12"
+                        viewBox="0 0 16 16"
+                      >
+                        <path
+                          fill="currentColor"
+                          opacity="0.3"
+                          d="M8 4l4 8H4z"
+                        />
                       </svg>
                     </span>
                   </div>
@@ -136,12 +207,15 @@
 
         <!-- 中间表体（虚拟滚动） -->
         <div
+          ref="scrollRef"
           class="virtual-table__body"
           :style="{ height: typeof height === 'number' ? `${height}px` : height }"
           @scroll="handleScroll"
-          ref="scrollRef"
         >
-          <div class="virtual-table__phantom" :style="{ height: `${totalHeight}px` }"></div>
+          <div
+            class="virtual-table__phantom"
+            :style="{ height: `${totalHeight}px` }"
+          />
           <div
             class="virtual-table__content"
             :style="{ transform: `translateY(${offsetY}px)` }"
@@ -151,10 +225,10 @@
                 <tr
                   v-for="(row, index) in visibleData"
                   :key="row[rowKey] || row.id"
+                  ref="rowRefs"
                   :data-index="renderStart + index"
                   class="virtual-table__row"
                   :class="{ 'virtual-table__row--stripe': stripe && (renderStart + index) % 2 === 1 }"
-                  ref="rowRefs"
                 >
                   <td
                     v-for="(column, colIndex) in normalColumns"
@@ -167,12 +241,12 @@
                   >
                     <div class="virtual-table__cell-content">
                       <component
-                        v-if="isTreeData && leftFixedColumns.length === 0 && colIndex === 0"
                         :is="renderTreeCell(row, column, true)"
+                        v-if="isTreeData && leftFixedColumns.length === 0 && colIndex === 0"
                       />
                       <component
-                        v-else-if="column.render && typeof column.render(row, column, renderStart + index) === 'object'"
                         :is="column.render(row, column, renderStart + index)"
+                        v-else-if="column.render && typeof column.render(row, column, renderStart + index) === 'object'"
                       />
                       <span v-else-if="column.render">
                         {{ column.render(row, column, renderStart + index) }}
@@ -210,20 +284,48 @@
                   :class="{ 'sortable': column.sortable }"
                   @click="handleSort(column)"
                 >
-                  <div class="virtual-table__header-content"
-                       :style="{ justifyContent: column.align === 'left' ? 'flex-start' : column.align === 'right' ? 'flex-end' : 'center' }">
+                  <div
+                    class="virtual-table__header-content"
+                    :style="{ justifyContent: column.align === 'left' ? 'flex-start' : column.align === 'right' ? 'flex-end' : 'center' }"
+                  >
                     <span>{{ column.title }}</span>
-                    <span v-if="column.sortable" class="virtual-table__sort-icon">
-                      <svg v-if="sortConfig?.key === column.key && sortConfig.order === 'asc'"
-                           width="12" height="12" viewBox="0 0 16 16">
-                        <path fill="currentColor" d="M8 4l4 8H4z"/>
+                    <span
+                      v-if="column.sortable"
+                      class="virtual-table__sort-icon"
+                    >
+                      <svg
+                        v-if="sortConfig?.key === column.key && sortConfig.order === 'asc'"
+                        width="12"
+                        height="12"
+                        viewBox="0 0 16 16"
+                      >
+                        <path
+                          fill="currentColor"
+                          d="M8 4l4 8H4z"
+                        />
                       </svg>
-                      <svg v-else-if="sortConfig?.key === column.key && sortConfig.order === 'desc'"
-                           width="12" height="12" viewBox="0 0 16 16">
-                        <path fill="currentColor" d="M8 12l-4-8h8z"/>
+                      <svg
+                        v-else-if="sortConfig?.key === column.key && sortConfig.order === 'desc'"
+                        width="12"
+                        height="12"
+                        viewBox="0 0 16 16"
+                      >
+                        <path
+                          fill="currentColor"
+                          d="M8 12l-4-8h8z"
+                        />
                       </svg>
-                      <svg v-else width="12" height="12" viewBox="0 0 16 16">
-                        <path fill="currentColor" opacity="0.3" d="M8 4l4 8H4z"/>
+                      <svg
+                        v-else
+                        width="12"
+                        height="12"
+                        viewBox="0 0 16 16"
+                      >
+                        <path
+                          fill="currentColor"
+                          opacity="0.3"
+                          d="M8 4l4 8H4z"
+                        />
                       </svg>
                     </span>
                   </div>
@@ -233,11 +335,19 @@
           </table>
         </div>
         <!-- 右侧固定表体 -->
-        <div class="virtual-table__fixed-body"
-             :style="{ height: typeof height === 'number' ? `${height}px` : height }"
-             ref="rightBodyRef">
-          <div class="virtual-table__phantom" :style="{ height: `${totalHeight}px` }"></div>
-          <div class="virtual-table__content" :style="{ transform: `translateY(${offsetY}px)` }">
+        <div
+          ref="rightBodyRef"
+          class="virtual-table__fixed-body"
+          :style="{ height: typeof height === 'number' ? `${height}px` : height }"
+        >
+          <div
+            class="virtual-table__phantom"
+            :style="{ height: `${totalHeight}px` }"
+          />
+          <div
+            class="virtual-table__content"
+            :style="{ transform: `translateY(${offsetY}px)` }"
+          >
             <table class="virtual-table__body-table">
               <tbody>
                 <tr
@@ -258,8 +368,8 @@
                   >
                     <div class="virtual-table__cell-content">
                       <component
-                        v-if="column.render && typeof column.render(row, column, renderStart + index) === 'object'"
                         :is="column.render(row, column, renderStart + index)"
+                        v-if="column.render && typeof column.render(row, column, renderStart + index) === 'object'"
                       />
                       <span v-else-if="column.render">
                         {{ column.render(row, column, renderStart + index) }}
@@ -276,8 +386,11 @@
     </div>
 
     <!-- 加载状态 -->
-    <div v-if="loading || isSorting" class="virtual-table__loading">
-      <div class="virtual-table__loading-spinner"></div>
+    <div
+      v-if="loading || isSorting"
+      class="virtual-table__loading"
+    >
+      <div class="virtual-table__loading-spinner" />
       <span>{{ isSorting ? '排序中...' : '加载中...' }}</span>
     </div>
   </div>
