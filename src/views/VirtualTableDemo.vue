@@ -2,77 +2,74 @@
   <div class="demo-container">
     <header class="demo-header">
       <h1>Vue3 Virtual Table</h1>
-      <p class="demo-subtitle">
-        高性能虚拟滚动表格组件 - 支持10万+数据流畅滚动
-      </p>
+      <span class="demo-subtitle">高性能虚拟滚动表格组件 - 支持10万+数据流畅滚动</span>
     </header>
 
     <div class="demo-controls">
-      <div class="control-group">
-        <label>数据量：</label>
-        <div class="control-buttons">
-          <button
-            v-for="count in dataCounts"
-            :key="count"
-            :class="{ active: currentCount === count }"
-            class="control-button"
-            @click="changeDataCount(count)"
-          >
-            {{ count.toLocaleString() }} 条
-          </button>
+      <div class="control-row">
+        <div class="control-group">
+          <label>数据量：</label>
+          <div class="control-buttons">
+            <button
+              v-for="count in dataCounts"
+              :key="count"
+              :class="{ active: currentCount === count }"
+              class="control-button"
+              @click="changeDataCount(count)"
+            >
+              {{ count.toLocaleString() }}
+            </button>
+          </div>
         </div>
-      </div>
 
-      <div class="control-group">
-        <label>数据模式：</label>
-        <div class="control-buttons">
-          <button
-            class="control-button"
-            :class="{ active: isTreeMode }"
-            @click="toggleDataMode"
-          >
-            {{ isTreeMode ? '树形数据' : '普通数据' }}
-          </button>
+        <div class="control-group">
+          <label>数据模式：</label>
+          <div class="control-buttons">
+            <button
+              class="control-button"
+              :class="{ active: isTreeMode }"
+              @click="toggleDataMode"
+            >
+              {{ isTreeMode ? '树形数据' : '普通数据' }}
+            </button>
+          </div>
         </div>
-      </div>
 
-      <div class="control-group">
-        <label>行高模式：</label>
-        <div class="control-buttons">
-          <button
-            class="control-button"
-            :class="{ active: dynamicHeight }"
-            @click="toggleHeightMode"
-          >
-            {{ dynamicHeight ? '动态行高' : '固定行高' }}
-          </button>
+        <div class="control-group">
+          <label>行高模式：</label>
+          <div class="control-buttons">
+            <button
+              class="control-button"
+              :class="{ active: dynamicHeight }"
+              @click="toggleHeightMode"
+            >
+              {{ dynamicHeight ? '动态行高' : '固定行高' }}
+            </button>
+          </div>
         </div>
-      </div>
 
-      <div class="control-group">
-        <label>表格样式：</label>
-        <div class="control-buttons">
-          <button
-            class="control-button"
-            :class="{ active: stripe }"
-            @click="stripe = !stripe"
-          >
-            斑马纹
-          </button>
-          <button
-            class="control-button"
-            :class="{ active: border }"
-            @click="border = !border"
-          >
-            边框
-          </button>
+        <div class="control-group">
+          <label>表格样式：</label>
+          <div class="control-buttons">
+            <button
+              class="control-button"
+              :class="{ active: stripe }"
+              @click="stripe = !stripe"
+            >
+              斑马纹
+            </button>
+            <button
+              class="control-button"
+              :class="{ active: border }"
+              @click="border = !border"
+            >
+              边框
+            </button>
+          </div>
         </div>
-      </div>
 
-      <div class="control-group">
-        <label>性能监控：</label>
-        <div class="stats">
-          <span class="stat-item">渲染数量: <strong>{{ renderCount }}</strong></span>
+        <div class="control-group stats-group">
+          <span class="stat-item">渲染: <strong>{{ renderCount }}</strong></span>
           <span class="stat-item">FPS: <strong>{{ fps }}</strong></span>
           <span class="stat-item">内存: <strong>{{ memory }}</strong></span>
         </div>
@@ -403,124 +400,129 @@ onUnmounted(() => {
 }
 
 .demo-header {
-  text-align: center;
+  display: flex;
+  align-items: center;
+  gap: 16px;
   color: white;
-  margin-bottom: 30px;
+  margin-bottom: 16px;
 }
 
 .demo-header h1 {
-  font-size: 48px;
-  margin-bottom: 10px;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+  font-size: 24px;
+  margin: 0;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .demo-subtitle {
-  font-size: 18px;
-  opacity: 0.95;
+  font-size: 14px;
+  opacity: 0.9;
 }
 
 .demo-controls {
   background: white;
-  border-radius: 12px;
-  padding: 20px;
-  margin-bottom: 20px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.control-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
 }
 
 .control-group {
   display: flex;
   align-items: center;
-  margin-bottom: 15px;
-}
-
-.control-group:last-child {
-  margin-bottom: 0;
+  gap: 8px;
 }
 
 .control-group label {
-  width: 100px;
-  font-weight: 600;
+  font-weight: 500;
   color: #333;
+  font-size: 13px;
 }
 
 .control-buttons {
   display: flex;
-  gap: 10px;
+  gap: 6px;
 }
 
 .control-button {
-  padding: 6px 16px;
+  padding: 4px 10px;
   border: 1px solid #d9d9d9;
   background: white;
   color: #333;
-  border-radius: 6px;
+  border-radius: 4px;
   cursor: pointer;
-  font-size: 14px;
-  transition: all 0.3s;
+  font-size: 12px;
+  transition: all 0.2s;
   white-space: nowrap;
 }
 
 .control-button:hover {
   border-color: #667eea;
   color: #667eea;
-  background: #f5f5f5;
 }
 
 .control-button.active {
   background: #667eea;
   color: white;
   border-color: #667eea;
-  font-weight: 500;
 }
 
-.stats {
-  display: flex;
-  gap: 30px;
+.stats-group {
+  margin-left: auto;
+  gap: 16px;
 }
 
 .stat-item {
   color: #666;
+  font-size: 12px;
 }
 
 .stat-item strong {
   color: #667eea;
-  font-size: 16px;
-  margin-left: 5px;
+  margin-left: 4px;
 }
 
 .demo-table {
   background: white;
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-  margin-bottom: 20px;
-  height: 700px;
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  margin-bottom: 12px;
+  height: 600px;
   display: flex;
   flex-direction: column;
 }
 
 .demo-info {
   background: white;
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .demo-info h3 {
   color: #333;
-  margin-bottom: 15px;
+  margin-bottom: 12px;
+  font-size: 14px;
 }
 
 .demo-info ul {
   list-style: none;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 8px;
 }
 
 .demo-info li {
   color: #666;
-  padding: 5px 0;
+  font-size: 13px;
+  padding: 4px 0;
 }
 
 /* 操作按钮样式 */
@@ -532,13 +534,11 @@ onUnmounted(() => {
   border-radius: 4px;
   cursor: pointer;
   font-size: 12px;
-  transition: all 0.3s;
+  transition: all 0.2s;
 }
 
 :deep(.action-button:hover) {
   background: #5a67d8;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(102, 126, 234, 0.4);
 }
 
 :deep(.action-button:active) {
