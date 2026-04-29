@@ -76,28 +76,30 @@
       </div>
     </div>
 
-    <div class="demo-table">
-      <VirtualTable
-        :data="tableData"
-        :columns="columns"
-        :height="600"
-        :stripe="stripe"
-        :border="border"
-        :loading="loading"
-        :virtual-config="{
-          itemHeight: 50,
-          bufferSize: 5,
-          dynamicHeight: dynamicHeight,
-          estimatedItemHeight: 50
-        }"
-        :tree-props="isTreeMode ? {
-          children: 'children',
-          indent: 20,
-          defaultExpandAll: false,
-          showLine: false
-        } : undefined"
-        @expand="handleTreeExpand"
-      />
+    <div class="demo-table-wrapper">
+      <div class="demo-table">
+        <VirtualTable
+          :data="tableData"
+          :columns="columns"
+          :height="500"
+          :stripe="stripe"
+          :border="border"
+          :loading="loading"
+          :virtual-config="{
+            itemHeight: 50,
+            bufferSize: 5,
+            dynamicHeight: dynamicHeight,
+            estimatedItemHeight: 50
+          }"
+          :tree-props="isTreeMode ? {
+            children: 'children',
+            indent: 20,
+            defaultExpandAll: false,
+            showLine: false
+          } : undefined"
+          @expand="handleTreeExpand"
+        />
+      </div>
     </div>
 
     <!-- 详情弹窗 -->
@@ -312,35 +314,38 @@ onUnmounted(() => {
 
 <style scoped>
 .demo-container {
-  max-width: 1400px;
-  margin: 0 auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: #f5f5f5;
 }
 
 .demo-header {
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   gap: 16px;
   color: white;
-  margin-bottom: 12px;
+  padding: 12px 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
 .demo-header h1 {
-  font-size: 24px;
+  font-size: 20px;
   margin: 0;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .demo-subtitle {
-  font-size: 14px;
+  font-size: 13px;
   opacity: 0.9;
 }
 
 .demo-controls {
+  flex-shrink: 0;
   background: white;
-  border-radius: 8px;
-  padding: 12px 16px;
-  margin-bottom: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  padding: 10px 20px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
 }
 
 .control-row {
@@ -405,22 +410,33 @@ onUnmounted(() => {
   margin-left: 4px;
 }
 
-.demo-table {
-  background: white;
-  border-radius: 8px;
-  padding: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  margin-bottom: 12px;
-  height: 600px;
+.demo-table-wrapper {
+  flex: 1;
+  padding: 12px 20px;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
 }
 
+.demo-table {
+  flex: 1;
+  background: white;
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
 .demo-footer {
+  flex-shrink: 0;
   color: #666;
   font-size: 12px;
   text-align: center;
-  padding: 8px;
+  padding: 8px 20px;
+  background: white;
+  border-top: 1px solid #f0f0f0;
 }
 
 /* 操作按钮样式 */
