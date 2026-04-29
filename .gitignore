@@ -115,3 +115,6 @@ docs/.vitepress/cache
 *.rej
 *.bak
 dev-notes/
+
+# Local type declarations
+src/env.d.ts
