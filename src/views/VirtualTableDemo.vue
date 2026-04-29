@@ -81,7 +81,7 @@
         <VirtualTable
           :data="tableData"
           :columns="columns"
-          :height="500"
+          :height="600"
           :stripe="stripe"
           :border="border"
           :loading="loading"
@@ -110,7 +110,7 @@
     />
 
     <div class="demo-footer">
-      特性：虚拟滚动 · 10万+数据流畅滚动 · 动态行高 · 固定列
+      特性：虚拟滚动 · 10万+数据流畅滚动 · 动态行高
     </div>
   </div>
 </template>
@@ -149,7 +149,7 @@ const currentDetailRow = ref<TableRow | null>(null)
 const columns = computed<TableColumn[]>(() => {
   if (isTreeMode.value) {
     return [
-      { key: 'name', title: '组织名称', width: 300, align: 'left', fixed: 'left' },
+      { key: 'name', title: '组织名称', width: 300, align: 'left' },
       { key: 'type', title: '类型', width: 100 },
       { key: 'manager', title: '负责人', width: 120 },
       { key: 'employees', title: '员工数', width: 100, sortable: true },
@@ -167,7 +167,6 @@ const columns = computed<TableColumn[]>(() => {
         key: 'actions',
         title: '操作',
         width: 100,
-        fixed: 'right',
         render: (row: TreeTableRow) => h('button', {
           class: 'action-button',
           onClick: (e: Event) => {
@@ -180,8 +179,8 @@ const columns = computed<TableColumn[]>(() => {
   }
 
   return [
-    { key: 'id', title: 'ID', width: 80, fixed: 'left', sortable: true },
-    { key: 'name', title: '姓名', width: 120, fixed: 'left', sortable: true },
+    { key: 'id', title: 'ID', width: 80, sortable: true },
+    { key: 'name', title: '姓名', width: 120, sortable: true },
     { key: 'age', title: '年龄', width: 80, sortable: true },
     { key: 'department', title: '部门', width: 120 },
     { key: 'position', title: '职位', width: 120 },
@@ -198,22 +197,14 @@ const columns = computed<TableColumn[]>(() => {
     {
       key: 'address',
       title: '地址',
-      width: dynamicHeight.value ? 300 : 200,
-      align: 'left',
-      render: (row: TableRow) => {
-        if (dynamicHeight.value) {
-          const lines = Math.floor(Math.random() * 3) + 1
-          return Array(lines).fill(row.address).join('\n')
-        }
-        return row.address
-      }
+      width: 200,
+      align: 'left'
     },
     { key: 'joinDate', title: '入职日期', width: 120 },
     {
       key: 'actions',
       title: '操作',
       width: 100,
-      fixed: 'right',
       render: (row: TableRow) => h('button', {
         class: 'action-button',
         onClick: (e: Event) => {
@@ -422,7 +413,6 @@ onUnmounted(() => {
   flex: 1;
   background: white;
   border-radius: 8px;
-  padding: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   display: flex;
   flex-direction: column;
