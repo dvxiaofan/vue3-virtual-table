@@ -41,7 +41,44 @@ export function useVirtualScroll(
   }
 
   /**
-   * 更新某一项的高度（动态行高模式）
+   * 批量更新多项高度（动态行高模式）- 高性能版本
+   * 收集所有更新后一次性处理，只触发一次响应式
+   */
+  const batchUpdateItemHeights = (updates: { index: number; height: number }[]) => {
+    if (updates.length === 0 || positions.value.length === 0) return
+
+    // 建立 index -> height 的映射
+    const updateMap = new Map(updates.map(u => [u.index, u.height]))
+
+    // 先更新所有受影响项的高度（不更新位置）
+    for (const [index, height] of updateMap) {
+      const pos = positions.value[index]
+      if (pos) {
+        pos.height = height
+        pos.bottom = pos.top + height
+      }
+    }
+
+    // 找出需要重新计算位置的起始索引
+    const minIndex = Math.min(...updates.map(u => u.index))
+
+    // 重新计算从 minIndex 开始的所有位置
+    for (let i = minIndex + 1; i < positions.value.length; i++) {
+      const current = positions.value[i]
+      const previous = positions.value[i - 1]
+      if (current && previous) {
+        current.top = previous.bottom
+        current.bottom = current.top + current.height
+      }
+    }
+
+    // 触发一次响应式更新
+    positions.value = [...positions.value]
+  }
+
+  /**
+   * 更新某一项的高度（动态行高模式）- 单条更新
+   * 保留此方法用于单条更新场景
    */
   const updateItemHeight = (index: number, height: number) => {
     const currentPosition = positions.value[index]
@@ -214,6 +251,7 @@ export function useVirtualScroll(
     // 方法
     handleScroll,
     setContainerHeight,
-    updateItemHeight
+    updateItemHeight,
+    batchUpdateItemHeights
   }
 }

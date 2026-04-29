@@ -571,7 +571,7 @@ const {
   totalHeight,
   handleScroll: handleVirtualScroll,
   setContainerHeight,
-  updateItemHeight
+  batchUpdateItemHeights
 } = useVirtualScroll(renderData as any, props.virtualConfig)
 
 // 节流的滚动处理
@@ -609,9 +609,12 @@ const handleScroll = (e: Event) => {
   throttledScroll(e)
 }
 
-// 更新行高（动态行高模式）
+// 更新行高（动态行高模式）- 批量更新版本
 const updateRowHeights = async () => {
   await nextTick()
+
+  // 收集所有需要更新的高度
+  const updates: { index: number; height: number }[] = []
 
   rowRefs.value.forEach((rowEl) => {
     if (!rowEl) return
@@ -619,8 +622,13 @@ const updateRowHeights = async () => {
     const index = parseInt(rowEl.dataset.index || '0')
     const height = rowEl.getBoundingClientRect().height
 
-    updateItemHeight(index, height)
+    updates.push({ index, height })
   })
+
+  // 批量更新，只触发一次响应式
+  if (updates.length > 0) {
+    batchUpdateItemHeights(updates)
+  }
 }
 
 // 处理排序
