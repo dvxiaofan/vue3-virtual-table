@@ -179,8 +179,8 @@ const columns = computed<TableColumn[]>(() => {
   }
 
   return [
-    { key: 'id', title: 'ID', width: 80, sortable: true },
-    { key: 'name', title: '姓名', width: 120, sortable: true },
+    { key: 'id', title: 'ID', width: 80, fixed: 'left', sortable: true },
+    { key: 'name', title: '姓名', width: 120, fixed: 'left', sortable: true },
     { key: 'age', title: '年龄', width: 80, sortable: true },
     { key: 'department', title: '部门', width: 120 },
     { key: 'position', title: '职位', width: 120 },
@@ -205,6 +205,7 @@ const columns = computed<TableColumn[]>(() => {
       key: 'actions',
       title: '操作',
       width: 100,
+      fixed: 'right',
       render: (row: TableRow) => h('button', {
         class: 'action-button',
         onClick: (e: Event) => {

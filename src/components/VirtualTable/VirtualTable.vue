@@ -3,121 +3,270 @@
     class="virtual-table"
     :class="{ 'virtual-table--border': border }"
   >
-    <!-- 表头 -->
-    <div
-      ref="headerRef"
-      class="virtual-table__header"
-    >
-      <table class="virtual-table__header-table">
-        <thead>
-          <tr>
-            <th
-              v-for="column in columns"
-              :key="column.key"
-              :style="{
-                width: typeof column.width === 'number' ? `${column.width}px` : column.width,
-                textAlign: column.align || 'center'
-              }"
-              class="virtual-table__header-cell"
-              :class="{ 'sortable': column.sortable }"
-              @click="handleSort(column)"
-            >
-              <div
-                class="virtual-table__header-content"
-                :style="{ justifyContent: column.align === 'left' ? 'flex-start' : column.align === 'right' ? 'flex-end' : 'center' }"
-              >
-                <span>{{ column.title }}</span>
-                <span
-                  v-if="column.sortable"
-                  class="virtual-table__sort-icon"
-                >
-                  <svg
-                    v-if="sortConfig?.key === column.key && sortConfig.order === 'asc'"
-                    width="12"
-                    height="12"
-                    viewBox="0 0 16 16"
-                  >
-                    <path
-                      fill="currentColor"
-                      d="M8 4l4 8H4z"
-                    />
-                  </svg>
-                  <svg
-                    v-else-if="sortConfig?.key === column.key && sortConfig.order === 'desc'"
-                    width="12"
-                    height="12"
-                    viewBox="0 0 16 16"
-                  >
-                    <path
-                      fill="currentColor"
-                      d="M8 12l-4-8h8z"
-                    />
-                  </svg>
-                  <svg
-                    v-else
-                    width="12"
-                    height="12"
-                    viewBox="0 0 16 16"
-                  >
-                    <path
-                      fill="currentColor"
-                      opacity="0.3"
-                      d="M8 4l4 8H4z"
-                    />
-                  </svg>
-                </span>
-              </div>
-            </th>
-          </tr>
-        </thead>
-      </table>
-    </div>
-
-    <!-- 表体（虚拟滚动） -->
-    <div
-      ref="scrollRef"
-      class="virtual-table__body"
-      @scroll="handleScroll"
-    >
+    <div class="virtual-table__container">
+      <!-- 左侧固定列 -->
       <div
-        class="virtual-table__phantom"
-        :style="{ height: `${totalHeight}px` }"
-      />
-      <div
-        class="virtual-table__content"
-        :style="{ transform: `translateY(${offsetY}px)` }"
+        v-if="leftFixedColumns.length > 0"
+        class="virtual-table__fixed virtual-table__fixed--left"
+        :style="{ width: `${leftFixedWidth}px` }"
       >
-        <table class="virtual-table__body-table">
-          <tbody>
-            <tr
-              v-for="(row, index) in visibleData"
-              :key="row[rowKey] || row.id"
-              ref="rowRefs"
-              :data-index="renderStart + index"
-              class="virtual-table__row"
-              :class="{ 'virtual-table__row--stripe': stripe && (renderStart + index) % 2 === 1 }"
-            >
-              <td
-                v-for="column in columns"
-                :key="column.key"
-                :style="{
-                  width: typeof column.width === 'number' ? `${column.width}px` : column.width,
-                  textAlign: column.align || 'center'
-                }"
-                class="virtual-table__cell"
-              >
-                <component
-                  :is="column.render(row, column, renderStart + index)"
-                  v-if="column.render && typeof column.render(row, column, renderStart + index) === 'object'"
-                />
-                <span v-else-if="column.render">
-                  {{ column.render(row, column, renderStart + index) }}
-                </span>
-                <span v-else>{{ row[column.key] }}</span>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <div class="virtual-table__header">
+          <table class="virtual-table__header-table">
+            <thead>
+              <tr>
+                <th
+                  v-for="column in leftFixedColumns"
+                  :key="column.key"
+                  :style="{
+                    width: typeof column.width === 'number' ? `${column.width}px` : column.width,
+                    textAlign: column.align || 'center'
+                  }"
+                  class="virtual-table__header-cell"
+                >
+                  <div
+                    class="virtual-table__header-content"
+                    :style="{ justifyContent: column.align === 'left' ? 'flex-start' : column.align === 'right' ? 'flex-end' : 'center' }"
+                  >
+                    {{ column.title }}
+                  </div>
+                </th>
+              </tr>
+            </thead>
+          </table>
+        </div>
+        <div
+          class="virtual-table__body"
+        >
+          <div
+            class="virtual-table__phantom"
+            :style="{ height: `${totalHeight}px` }"
+          />
+          <div
+            class="virtual-table__content"
+            :style="{ transform: `translateY(${offsetY}px)` }"
+          >
+            <table class="virtual-table__body-table">
+              <tbody>
+                <tr
+                  v-for="(row, index) in visibleData"
+                  :key="row[rowKey] || row.id"
+                  :data-index="renderStart + index"
+                  class="virtual-table__row"
+                >
+                  <td
+                    v-for="column in leftFixedColumns"
+                    :key="column.key"
+                    :style="{
+                      width: typeof column.width === 'number' ? `${column.width}px` : column.width,
+                      textAlign: column.align || 'center'
+                    }"
+                    class="virtual-table__cell"
+                  >
+                    <component
+                      :is="column.render(row, column, renderStart + index)"
+                      v-if="column.render && typeof column.render(row, column, renderStart + index) === 'object'"
+                    />
+                    <span v-else-if="column.render">
+                      {{ column.render(row, column, renderStart + index) }}
+                    </span>
+                    <span v-else>{{ row[column.key] }}</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- 中间滚动区域 -->
+      <div
+        ref="scrollRef"
+        class="virtual-table__main"
+        @scroll="handleScroll"
+      >
+        <div class="virtual-table__header">
+          <table class="virtual-table__header-table">
+            <thead>
+              <tr>
+                <th
+                  v-for="column in normalColumns"
+                  :key="column.key"
+                  :style="{
+                    width: typeof column.width === 'number' ? `${column.width}px` : column.width,
+                    textAlign: column.align || 'center'
+                  }"
+                  class="virtual-table__header-cell"
+                  :class="{ 'sortable': column.sortable }"
+                  @click="handleSort(column)"
+                >
+                  <div
+                    class="virtual-table__header-content"
+                    :style="{ justifyContent: column.align === 'left' ? 'flex-start' : column.align === 'right' ? 'flex-end' : 'center' }"
+                  >
+                    <span>{{ column.title }}</span>
+                    <span
+                      v-if="column.sortable"
+                      class="virtual-table__sort-icon"
+                    >
+                      <svg
+                        v-if="sortConfig?.key === column.key && sortConfig.order === 'asc'"
+                        width="12"
+                        height="12"
+                        viewBox="0 0 16 16"
+                      >
+                        <path
+                          fill="currentColor"
+                          d="M8 4l4 8H4z"
+                        />
+                      </svg>
+                      <svg
+                        v-else-if="sortConfig?.key === column.key && sortConfig.order === 'desc'"
+                        width="12"
+                        height="12"
+                        viewBox="0 0 16 16"
+                      >
+                        <path
+                          fill="currentColor"
+                          d="M8 12l-4-8h8z"
+                        />
+                      </svg>
+                      <svg
+                        v-else
+                        width="12"
+                        height="12"
+                        viewBox="0 0 16 16"
+                      >
+                        <path
+                          fill="currentColor"
+                          opacity="0.3"
+                          d="M8 4l4 8H4z"
+                        />
+                      </svg>
+                    </span>
+                  </div>
+                </th>
+              </tr>
+            </thead>
+          </table>
+        </div>
+        <div
+          class="virtual-table__body"
+        >
+          <div
+            class="virtual-table__phantom"
+            :style="{ height: `${totalHeight}px` }"
+          />
+          <div
+            class="virtual-table__content"
+            :style="{ transform: `translateY(${offsetY}px)` }"
+          >
+            <table class="virtual-table__body-table">
+              <tbody>
+                <tr
+                  v-for="(row, index) in visibleData"
+                  :key="row[rowKey] || row.id"
+                  ref="rowRefs"
+                  :data-index="renderStart + index"
+                  class="virtual-table__row"
+                  :class="{ 'virtual-table__row--stripe': stripe && (renderStart + index) % 2 === 1 }"
+                >
+                  <td
+                    v-for="column in normalColumns"
+                    :key="column.key"
+                    :style="{
+                      width: typeof column.width === 'number' ? `${column.width}px` : column.width,
+                      textAlign: column.align || 'center'
+                    }"
+                    class="virtual-table__cell"
+                  >
+                    <component
+                      :is="column.render(row, column, renderStart + index)"
+                      v-if="column.render && typeof column.render(row, column, renderStart + index) === 'object'"
+                    />
+                    <span v-else-if="column.render">
+                      {{ column.render(row, column, renderStart + index) }}
+                    </span>
+                    <span v-else>{{ row[column.key] }}</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- 右侧固定列 -->
+      <div
+        v-if="rightFixedColumns.length > 0"
+        class="virtual-table__fixed virtual-table__fixed--right"
+        :style="{ width: `${rightFixedWidth}px` }"
+      >
+        <div class="virtual-table__header">
+          <table class="virtual-table__header-table">
+            <thead>
+              <tr>
+                <th
+                  v-for="column in rightFixedColumns"
+                  :key="column.key"
+                  :style="{
+                    width: typeof column.width === 'number' ? `${column.width}px` : column.width,
+                    textAlign: column.align || 'center'
+                  }"
+                  class="virtual-table__header-cell"
+                >
+                  <div
+                    class="virtual-table__header-content"
+                    :style="{ justifyContent: column.align === 'left' ? 'flex-start' : column.align === 'right' ? 'flex-end' : 'center' }"
+                  >
+                    {{ column.title }}
+                  </div>
+                </th>
+              </tr>
+            </thead>
+          </table>
+        </div>
+        <div
+          class="virtual-table__body"
+        >
+          <div
+            class="virtual-table__phantom"
+            :style="{ height: `${totalHeight}px` }"
+          />
+          <div
+            class="virtual-table__content"
+            :style="{ transform: `translateY(${offsetY}px)` }"
+          >
+            <table class="virtual-table__body-table">
+              <tbody>
+                <tr
+                  v-for="(row, index) in visibleData"
+                  :key="row[rowKey] || row.id"
+                  :data-index="renderStart + index"
+                  class="virtual-table__row"
+                >
+                  <td
+                    v-for="column in rightFixedColumns"
+                    :key="column.key"
+                    :style="{
+                      width: typeof column.width === 'number' ? `${column.width}px` : column.width,
+                      textAlign: column.align || 'center'
+                    }"
+                    class="virtual-table__cell"
+                  >
+                    <component
+                      :is="column.render(row, column, renderStart + index)"
+                      v-if="column.render && typeof column.render(row, column, renderStart + index) === 'object'"
+                    />
+                    <span v-else-if="column.render">
+                      {{ column.render(row, column, renderStart + index) }}
+                    </span>
+                    <span v-else>{{ row[column.key] }}</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -133,7 +282,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, nextTick, onMounted, onUnmounted } from 'vue'
+import { ref, watch, nextTick, onMounted, onUnmounted, computed } from 'vue'
 import { useVirtualScroll } from '@/hooks/useVirtualScroll'
 import type { VirtualTableProps, SortConfig, TableRow } from '@/types'
 import { throttle } from '@/utils'
@@ -167,7 +316,6 @@ const emit = defineEmits<{
 }>()
 
 const scrollRef = ref<HTMLElement>()
-const headerRef = ref<HTMLElement>()
 const rowRefs = ref<HTMLElement[]>([])
 
 const sortConfig = ref<SortConfig | null>(null)
@@ -180,12 +328,29 @@ watch(() => props.data, (newData) => {
   }
 }, { immediate: true })
 
-const scrollbarWidth = ref(0)
-
 worker.onmessage = (e) => {
   internalData.value = e.data
   isSorting.value = false
 }
+
+// 列分组计算
+const leftFixedColumns = computed(() => props.columns.filter(col => col.fixed === 'left'))
+const rightFixedColumns = computed(() => props.columns.filter(col => col.fixed === 'right'))
+const normalColumns = computed(() => props.columns.filter(col => !col.fixed))
+
+const leftFixedWidth = computed(() => {
+  return leftFixedColumns.value.reduce((total, col) => {
+    const width = typeof col.width === 'number' ? col.width : parseInt(col.width || '100')
+    return total + width
+  }, 0)
+})
+
+const rightFixedWidth = computed(() => {
+  return rightFixedColumns.value.reduce((total, col) => {
+    const width = typeof col.width === 'number' ? col.width : parseInt(col.width || '100')
+    return total + width
+  }, 0)
+})
 
 const {
   visibleData,
@@ -199,10 +364,6 @@ const {
 
 const throttledScroll = throttle((e: Event) => {
   handleVirtualScroll(e)
-
-  if (headerRef.value && scrollRef.value) {
-    headerRef.value.scrollLeft = scrollRef.value.scrollLeft
-  }
 
   if (props.virtualConfig?.dynamicHeight) {
     updateRowHeights()
@@ -264,9 +425,6 @@ const resizeObserver = ref<ResizeObserver>()
 onMounted(() => {
   nextTick(() => {
     if (scrollRef.value) {
-      const hasVerticalScrollbar = scrollRef.value.scrollHeight > scrollRef.value.clientHeight
-      scrollbarWidth.value = hasVerticalScrollbar ? (scrollRef.value.offsetWidth - scrollRef.value.clientWidth) : 0
-
       const height = scrollRef.value.clientHeight || 600
       setContainerHeight(height)
 
@@ -274,11 +432,6 @@ onMounted(() => {
         for (const entry of entries) {
           const newHeight = entry.contentRect.height || 600
           setContainerHeight(newHeight)
-
-          if (scrollRef.value) {
-            const hasScroll = scrollRef.value.scrollHeight > scrollRef.value.clientHeight
-            scrollbarWidth.value = hasScroll ? (scrollRef.value.offsetWidth - scrollRef.value.clientWidth) : 0
-          }
         }
       })
       resizeObserver.value.observe(scrollRef.value)
@@ -322,17 +475,47 @@ watch(() => props.height, () => {
   background: #fff;
   font-size: 14px;
   color: #333;
+  overflow: hidden;
 }
 
 .virtual-table--border {
   border: 1px solid #e8e8e8;
 }
 
-.virtual-table__header {
+.virtual-table__container {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.virtual-table__fixed {
+  display: flex;
+  flex-direction: column;
+  background: #fff;
   flex-shrink: 0;
   overflow: hidden;
-  border-bottom: 1px solid #e8e8e8;
+}
+
+.virtual-table__fixed--left {
+  border-right: 2px solid #e8e8e8;
+}
+
+.virtual-table__fixed--right {
+  border-left: 2px solid #e8e8e8;
+}
+
+.virtual-table__main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.virtual-table__header {
+  flex-shrink: 0;
   background: #fafafa;
+  border-bottom: 1px solid #e8e8e8;
+  overflow: hidden;
 }
 
 .virtual-table__header-table {
@@ -372,7 +555,6 @@ watch(() => props.height, () => {
 }
 
 .virtual-table__sort-icon {
-  margin-left: 4px;
   display: inline-flex;
   align-items: center;
 }
@@ -380,7 +562,7 @@ watch(() => props.height, () => {
 .virtual-table__body {
   flex: 1;
   position: relative;
-  overflow: auto;
+  overflow: hidden;
 }
 
 .virtual-table__phantom {
@@ -460,21 +642,21 @@ watch(() => props.height, () => {
   100% { transform: rotate(360deg); }
 }
 
-.virtual-table__body::-webkit-scrollbar {
+.virtual-table__main::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
-.virtual-table__body::-webkit-scrollbar-track {
+.virtual-table__main::-webkit-scrollbar-track {
   background: #f1f1f1;
 }
 
-.virtual-table__body::-webkit-scrollbar-thumb {
+.virtual-table__main::-webkit-scrollbar-thumb {
   background: #888;
   border-radius: 4px;
 }
 
-.virtual-table__body::-webkit-scrollbar-thumb:hover {
+.virtual-table__main::-webkit-scrollbar-thumb:hover {
   background: #555;
 }
 </style>
