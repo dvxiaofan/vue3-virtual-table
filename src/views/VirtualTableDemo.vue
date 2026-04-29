@@ -107,16 +107,8 @@
       :columns="columns.filter(col => col.key !== 'actions')"
     />
 
-    <div class="demo-info">
-      <h3>特性</h3>
-      <ul>
-        <li>虚拟滚动：仅渲染可视区域数据</li>
-        <li>高性能：支持10万+数据流畅滚动</li>
-        <li>动态行高：支持不同高度的行</li>
-        <li>灵活配置：丰富的配置选项</li>
-        <li>自定义渲染：支持自定义单元格内容</li>
-        <li>响应式：自适应容器大小变化</li>
-      </ul>
+    <div class="demo-footer">
+      特性：虚拟滚动 · 10万+数据流畅滚动 · 动态行高 · 固定列
     </div>
   </div>
 </template>
@@ -153,148 +145,74 @@ const currentDetailRow = ref<TableRow | null>(null)
 
 // 列配置
 const columns = computed<TableColumn[]>(() => {
-  // 树形模式的列配置
   if (isTreeMode.value) {
     return [
-      {
-        key: 'name',
-        title: '组织名称',
-        width: 300,
-        align: 'left',
-        fixed: 'left'
-      },
-      {
-        key: 'type',
-        title: '类型',
-        width: 100
-      },
-      {
-        key: 'manager',
-        title: '负责人',
-        width: 120
-      },
-      {
-        key: 'employees',
-        title: '员工数',
-        width: 100,
-        sortable: true
-      },
+      { key: 'name', title: '组织名称', width: 300, align: 'left', fixed: 'left' },
+      { key: 'type', title: '类型', width: 100 },
+      { key: 'manager', title: '负责人', width: 120 },
+      { key: 'employees', title: '员工数', width: 100, sortable: true },
       {
         key: 'budget',
         title: '预算',
         width: 150,
         align: 'right',
         sortable: true,
-        render: (row: TreeTableRow) => {
-          return `¥${row.budget?.toLocaleString() || 0}`
-        }
+        render: (row: TreeTableRow) => `¥${row.budget?.toLocaleString() || 0}`
       },
-      {
-        key: 'status',
-        title: '状态',
-        width: 100
-      },
-      {
-        key: 'createDate',
-        title: '创建日期',
-        width: 120
-      },
+      { key: 'status', title: '状态', width: 100 },
+      { key: 'createDate', title: '创建日期', width: 120 },
       {
         key: 'actions',
         title: '操作',
         width: 100,
         fixed: 'right',
-        render: (row: TreeTableRow) => {
-          return h('button', {
-            class: 'action-button',
-            onClick: (e: Event) => {
-              e.stopPropagation()
-              handleShowDetail(row)
-            }
-          }, '详情')
-        }
+        render: (row: TreeTableRow) => h('button', {
+          class: 'action-button',
+          onClick: (e: Event) => {
+            e.stopPropagation()
+            handleShowDetail(row)
+          }
+        }, '详情')
       }
     ]
   }
 
-  // 普通模式的列配置
   return [
-  {
-    key: 'id',
-    title: 'ID',
-    width: 80,
-    fixed: 'left',
-    sortable: true
-  },
-  {
-    key: 'name',
-    title: '姓名',
-    width: 120,
-    fixed: 'left',
-    sortable: true
-  },
-  {
-    key: 'age',
-    title: '年龄',
-    width: 80,
-    sortable: true
-  },
-  {
-    key: 'department',
-    title: '部门',
-    width: 120
-  },
-  {
-    key: 'position',
-    title: '职位',
-    width: 120
-  },
-  {
-    key: 'salary',
-    title: '薪资',
-    width: 120,
-    align: 'right',
-    sortable: true,
-    render: (row: TableRow) => {
-      return `¥${row.salary.toLocaleString()}`
-    }
-  },
-  {
-    key: 'email',
-    title: '邮箱',
-    width: 200,
-    align: 'left'
-  },
-  {
-    key: 'phone',
-    title: '电话',
-    width: 140
-  },
-  {
-    key: 'address',
-    title: '地址',
-    width: dynamicHeight.value ? 300 : 200,
-    align: 'left',
-    render: (row: TableRow) => {
-      if (dynamicHeight.value) {
-        const lines = Math.floor(Math.random() * 3) + 1
-        return Array(lines).fill(row.address).join('\n')
+    { key: 'id', title: 'ID', width: 80, fixed: 'left', sortable: true },
+    { key: 'name', title: '姓名', width: 120, fixed: 'left', sortable: true },
+    { key: 'age', title: '年龄', width: 80, sortable: true },
+    { key: 'department', title: '部门', width: 120 },
+    { key: 'position', title: '职位', width: 120 },
+    {
+      key: 'salary',
+      title: '薪资',
+      width: 120,
+      align: 'right',
+      sortable: true,
+      render: (row: TableRow) => `¥${row.salary.toLocaleString()}`
+    },
+    { key: 'email', title: '邮箱', width: 200, align: 'left' },
+    { key: 'phone', title: '电话', width: 140 },
+    {
+      key: 'address',
+      title: '地址',
+      width: dynamicHeight.value ? 300 : 200,
+      align: 'left',
+      render: (row: TableRow) => {
+        if (dynamicHeight.value) {
+          const lines = Math.floor(Math.random() * 3) + 1
+          return Array(lines).fill(row.address).join('\n')
+        }
+        return row.address
       }
-      return row.address
-    }
-  },
-  {
-    key: 'joinDate',
-    title: '入职日期',
-    width: 120
-  },
-  {
-    key: 'actions',
-    title: '操作',
-    width: 100,
-    fixed: 'right',
-    render: (row: TableRow) => {
-      return h('button', {
+    },
+    { key: 'joinDate', title: '入职日期', width: 120 },
+    {
+      key: 'actions',
+      title: '操作',
+      width: 100,
+      fixed: 'right',
+      render: (row: TableRow) => h('button', {
         class: 'action-button',
         onClick: (e: Event) => {
           e.stopPropagation()
@@ -302,7 +220,6 @@ const columns = computed<TableColumn[]>(() => {
         }
       }, '详情')
     }
-  }
   ]
 })
 
@@ -404,7 +321,7 @@ onUnmounted(() => {
   align-items: center;
   gap: 16px;
   color: white;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .demo-header h1 {
@@ -499,30 +416,11 @@ onUnmounted(() => {
   flex-direction: column;
 }
 
-.demo-info {
-  background: white;
-  border-radius: 8px;
-  padding: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-}
-
-.demo-info h3 {
-  color: #333;
-  margin-bottom: 12px;
-  font-size: 14px;
-}
-
-.demo-info ul {
-  list-style: none;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 8px;
-}
-
-.demo-info li {
+.demo-footer {
   color: #666;
-  font-size: 13px;
-  padding: 4px 0;
+  font-size: 12px;
+  text-align: center;
+  padding: 8px;
 }
 
 /* 操作按钮样式 */
